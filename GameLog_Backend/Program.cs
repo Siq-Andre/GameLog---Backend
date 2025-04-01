@@ -1,7 +1,20 @@
+using DotNetEnv;
 using GameLog_Backend.Database;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+Env.Load();
+
+
+var baseConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+var completeConnectionString = baseConnectionString
+    .Replace("{DB_SERVER}", Environment.GetEnvironmentVariable("DB_SERVER"))
+    .Replace("{DB_NAME}", Environment.GetEnvironmentVariable("DB_NAME"))
+    .Replace("{DB_USER}", Environment.GetEnvironmentVariable("DB_USER"))
+    .Replace("{DB_PASSWORD}", Environment.GetEnvironmentVariable("DB_PASSWORD"));
 
 // Add services to the container.
 
@@ -12,7 +25,7 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddDbContext<GameLogContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(completeConnectionString));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
